@@ -7,6 +7,7 @@ import android.net.NetworkInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -29,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
     private lateinit var sqliteUsuario: SqliteUsuario
-
+    private var chboxOnline: CheckBox? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,36 +39,13 @@ class LoginActivity : AppCompatActivity() {
         val username = findViewById<EditText>(R.id.username)
         val password = findViewById<EditText>(R.id.password)
         val loading = findViewById<ProgressBar>(R.id.loading)
+        this.chboxOnline=findViewById(R.id.cbOnline)
 
         sqliteUsuario = SqliteUsuario(this@LoginActivity)
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://apidatabank.azurewebsites.net/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
 
-        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
 
-        if (!isConnected) {
-            val username = findViewById<EditText>(R.id.username)
-            val password = findViewById<EditText>(R.id.password)
 
-            val cursor = sqliteUsuario.Usuario
-            if (cursor.moveToFirst()) {
-                if (cursor.getString(2) == username.text.toString() && cursor.getString(3) == password.text.toString()){
-                    Toast.makeText(this@LoginActivity, "Bienvenido " + cursor.getString(2), Toast.LENGTH_LONG).show();
-                    //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
-                    //startActivity(intent)
-                }else {
-                    Toast.makeText(this@LoginActivity, "Usuario o password erroneos ", Toast.LENGTH_LONG).show();
-                }
-            }
-        }else{
-            getTokenLogin();
-        }
     }
 
     fun getTokenLogin() {
@@ -97,31 +75,67 @@ class LoginActivity : AppCompatActivity() {
         val password = findViewById<EditText>(R.id.password)
 
         if(username.text.toString() != "" && password.text.toString() != null){
-            var autenticarUsuario = AutenticarUsuario()
-            autenticarUsuario.setUsuario(username.text.toString())
-            autenticarUsuario.setClave(password.text.toString())
-            val call = ApiUtils.getAPIService(this).postAutenticarUsuario(autenticarUsuario)
+            if (chboxOnline?.isChecked()==true) {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl("https://apidatabank.azurewebsites.net/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
 
-            call?.enqueue(object : Callback<RespuestaAutenticarUsuario> {
-                override fun onFailure(call: Call<RespuestaAutenticarUsuario>, t: Throwable) {
-                    Log.v("retrofit", "ingreso erroneo")
-                }
+                val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
 
-                override fun onResponse(call: Call<RespuestaAutenticarUsuario>, response: Response<RespuestaAutenticarUsuario>) {
-                    if(response.body()?.result?.getValor() != 0){
-                        Toast.makeText(this@LoginActivity, response.body()?.result?.mensaje, Toast.LENGTH_LONG).show();
-                    }else{
-                        sqliteUsuario.updateUsuario(response.body()?.idUsuario,response.body()?.usuario,response.body()?.clave)
-                        val cursor = sqliteUsuario.Usuario
+                val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+                if (!isConnected) {
+                    Toast.makeText(this, "Debe tener una conexion a internet", Toast.LENGTH_LONG).show()
+                }else{
 
-                        if (cursor.moveToFirst()) {
-                            Toast.makeText(this@LoginActivity, "Bienvenido " + cursor.getString(2), Toast.LENGTH_LONG).show();
-                        }
+                getTokenLogin();
+
+                var autenticarUsuario = AutenticarUsuario()
+                autenticarUsuario.setUsuario(username.text.toString())
+                autenticarUsuario.setClave(password.text.toString())
+                val call = ApiUtils.getAPIService(this).postAutenticarUsuario(autenticarUsuario)
+
+                call?.enqueue(object : Callback<RespuestaAutenticarUsuario> {
+                    override fun onFailure(call: Call<RespuestaAutenticarUsuario>, t: Throwable) {
+                        Log.v("retrofit", "ingreso erroneo")
                     }
-                    //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
-                    //startActivity(intent)
+
+                    override fun onResponse(call: Call<RespuestaAutenticarUsuario>, response: Response<RespuestaAutenticarUsuario>) {
+                        if(response.body()?.result?.getValor() != 0){
+                            Toast.makeText(this@LoginActivity, response.body()?.result?.mensaje, Toast.LENGTH_LONG).show();
+                        }else{
+                            sqliteUsuario.updateUsuario(response.body()?.idUsuario,response.body()?.usuario,response.body()?.clave)
+                            val cursor = sqliteUsuario.Usuario
+
+                            if (cursor.moveToFirst()) {
+                                Toast.makeText(this@LoginActivity, "Bienvenido en linea " + cursor.getString(1), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
+                        //startActivity(intent)
+                    }
+                })
+
+            }
+            }
+            else{
+                val username = findViewById<EditText>(R.id.username)
+                val password = findViewById<EditText>(R.id.password)
+
+                val cursor = sqliteUsuario.Usuario
+                if (cursor.moveToFirst()) {
+                    if (cursor.getString(1) == username.text.toString() && cursor.getString(2) == password.text.toString()){
+                        Toast.makeText(this@LoginActivity, "Bienvenido off Line" + cursor.getString(1), Toast.LENGTH_LONG).show();
+                        //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
+                        //startActivity(intent)
+                    }else {
+                        Toast.makeText(this@LoginActivity, "Usuario o password erroneos ", Toast.LENGTH_LONG).show();
+                    }
                 }
-            })
+            }
+
 
         }else {
             Toast.makeText(this, "Debe ingresar ambos campos", Toast.LENGTH_LONG).show()
