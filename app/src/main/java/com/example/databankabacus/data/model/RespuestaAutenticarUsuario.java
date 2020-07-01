@@ -5,7 +5,7 @@ public class RespuestaAutenticarUsuario {
     private String usuario;
     private String clave;
     private boolean valido;
-    Result ResultObject;
+    Result result = new Result();
 
 
     // Getter Methods
@@ -27,7 +27,7 @@ public class RespuestaAutenticarUsuario {
     }
 
     public Result getResult() {
-        return ResultObject;
+        return result;
     }
 
     // Setter Methods
@@ -49,31 +49,6 @@ public class RespuestaAutenticarUsuario {
     }
 
     public void setResult(Result resultObject) {
-        this.ResultObject = resultObject;
-    }
-}
-class Result {
-    private float valor;
-    private String mensaje;
-
-
-    // Getter Methods
-
-    public float getValor() {
-        return valor;
-    }
-
-    public String getMensaje() {
-        return mensaje;
-    }
-
-    // Setter Methods
-
-    public void setValor(float valor) {
-        this.valor = valor;
-    }
-
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
+        this.result = resultObject;
     }
 }

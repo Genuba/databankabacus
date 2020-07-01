@@ -52,9 +52,19 @@ class LoginActivity : AppCompatActivity() {
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
 
         if (!isConnected) {
-            Toast.makeText(this, "Para poder continuar debe connectarse a internet", Toast.LENGTH_LONG).show()
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            val username = findViewById<EditText>(R.id.username)
+            val password = findViewById<EditText>(R.id.password)
+
+            val cursor = sqliteUsuario.Usuario
+            if (cursor.moveToFirst()) {
+                if (cursor.getString(2) == username.text.toString() && cursor.getString(3) == password.text.toString()){
+                    Toast.makeText(this@LoginActivity, "Bienvenido " + cursor.getString(2), Toast.LENGTH_LONG).show();
+                    //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
+                    //startActivity(intent)
+                }else {
+                    Toast.makeText(this@LoginActivity, "Usuario o password erroneos ", Toast.LENGTH_LONG).show();
+                }
+            }
         }else{
             getTokenLogin();
         }
@@ -98,13 +108,17 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 override fun onResponse(call: Call<RespuestaAutenticarUsuario>, response: Response<RespuestaAutenticarUsuario>) {
-                    sqliteUsuario.updateUsuario(response.body()?.idUsuario,response.body()?.usuario,response.body()?.clave)
-                    val cursor = sqliteUsuario.Usuario
+                    if(response.body()?.result?.getValor() != 0){
+                        Toast.makeText(this@LoginActivity, response.body()?.result?.mensaje, Toast.LENGTH_LONG).show();
+                    }else{
+                        sqliteUsuario.updateUsuario(response.body()?.idUsuario,response.body()?.usuario,response.body()?.clave)
+                        val cursor = sqliteUsuario.Usuario
 
-                    if (cursor.moveToFirst()) {
-                        Toast.makeText(this@LoginActivity, "Bienvenido " + cursor.getString(1), Toast.LENGTH_LONG).show();
+                        if (cursor.moveToFirst()) {
+                            Toast.makeText(this@LoginActivity, "Bienvenido " + cursor.getString(2), Toast.LENGTH_LONG).show();
+                        }
                     }
-                    //val intent = Intent(this@LoginActivity, ::class.java)
+                    //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
                     //startActivity(intent)
                 }
             })
