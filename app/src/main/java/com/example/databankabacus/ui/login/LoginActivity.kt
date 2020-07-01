@@ -18,6 +18,8 @@ import com.example.databankabacus.data.model.Login
 import com.example.databankabacus.data.model.RespuestaAutenticarUsuario
 import com.example.databankabacus.data.model.Token
 import com.example.databankabacus.interfaces.JsonPlaceHolderApi
+import com.example.databankabacus.proyectosActivity
+import com.example.databankabacus.sincromizacionActivity
 import com.example.databankabacus.utils.ApiUtils
 import com.example.databankabacus.utils.SqliteUsuario
 import retrofit2.Call
@@ -42,9 +44,6 @@ class LoginActivity : AppCompatActivity() {
         this.chboxOnline=findViewById(R.id.cbOnline)
 
         sqliteUsuario = SqliteUsuario(this@LoginActivity)
-
-
-
 
     }
 
@@ -112,6 +111,8 @@ class LoginActivity : AppCompatActivity() {
                             if (cursor.moveToFirst()) {
                                 Toast.makeText(this@LoginActivity, "Bienvenido en linea " + cursor.getString(1), Toast.LENGTH_LONG).show();
                             }
+                            val intent = Intent(this@LoginActivity, sincromizacionActivity::class.java)
+                            startActivity(intent)
                         }
                         //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
                         //startActivity(intent)
@@ -128,8 +129,8 @@ class LoginActivity : AppCompatActivity() {
                 if (cursor.moveToFirst()) {
                     if (cursor.getString(1) == username.text.toString() && cursor.getString(2) == password.text.toString()){
                         Toast.makeText(this@LoginActivity, "Bienvenido off Line" + cursor.getString(1), Toast.LENGTH_LONG).show();
-                        //val intent = Intent(this@LoginActivity, OtrraActividad::class.java)
-                        //startActivity(intent)
+                        val intent = Intent(this@LoginActivity, proyectosActivity::class.java)
+                        startActivity(intent)
                     }else {
                         Toast.makeText(this@LoginActivity, "Usuario o password erroneos ", Toast.LENGTH_LONG).show();
                     }
