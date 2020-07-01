@@ -14,6 +14,6 @@ public interface JsonPlaceHolderApi {
     @POST("api/Cuentas/Login")
     Call<Token> postLogin(@Body Login post);
 
-    @POST("api/Cuentas/AutenticarUsuario")
+    @POST("api/Inventarios/AutenticarUsuario")
     Call<RespuestaAutenticarUsuario> postAutenticarUsuario(@Body AutenticarUsuario post);
 }

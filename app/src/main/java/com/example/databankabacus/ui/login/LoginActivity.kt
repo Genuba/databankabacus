@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import app.aplicaction.misionservi.utils.SessionController
 import com.example.databankabacus.R
 import com.example.databankabacus.data.model.AutenticarUsuario
 import com.example.databankabacus.data.model.Login
@@ -19,7 +18,6 @@ import com.example.databankabacus.data.model.RespuestaAutenticarUsuario
 import com.example.databankabacus.data.model.Token
 import com.example.databankabacus.interfaces.JsonPlaceHolderApi
 import com.example.databankabacus.utils.ApiUtils
-import com.example.databankabacus.utils.RetrofitClient
 import com.example.databankabacus.utils.SqliteUsuario
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,7 +28,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
-    private lateinit var session: SessionController
     private lateinit var sqliteUsuario: SqliteUsuario
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
         sqliteUsuario = SqliteUsuario(this@LoginActivity)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://servicioapp.azurewebsites.net/")
+            .baseUrl("https://apidatabank.azurewebsites.net/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
@@ -66,8 +63,8 @@ class LoginActivity : AppCompatActivity() {
     fun getTokenLogin() {
         var token: String = ""
         val parameters = Login()
-        parameters.email = "OMSClaro"
-        parameters.password = "pxQHf50Lht4u9Lzus.Q8x"
+        parameters.email = "AdminInventarios"
+        parameters.password = "CapoRCapo#234"
         val call: Call<Token> = jsonPlaceHolderApi.postLogin(parameters)
 
         call.enqueue(object : Callback<Token> {
@@ -111,7 +108,6 @@ class LoginActivity : AppCompatActivity() {
                     //startActivity(intent)
                 }
             })
-
 
         }else {
             Toast.makeText(this, "Debe ingresar ambos campos", Toast.LENGTH_LONG).show()

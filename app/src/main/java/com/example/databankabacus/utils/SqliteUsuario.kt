@@ -74,7 +74,7 @@ internal class SqliteUsuario(context: Context?) :
                         COL3 + "," +
                         COL4 +
                         " FROM " + TABLE_NAME +
-                        " LIMIT 1"
+                        " WHERE ID = 1"
             return db.rawQuery(query, null)
         }
 

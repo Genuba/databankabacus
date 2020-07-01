@@ -11,7 +11,7 @@ public class ApiUtils {
 
     private ApiUtils() {}
 
-    public static final String BASE_URL = "https://servicioapp.azurewebsites.net/";
+    public static final String BASE_URL = "https://apidatabank.azurewebsites.net/";
 
     public static JsonPlaceHolderApi getAPIService(Context context) {
         return RetrofitClient.getClient(context,BASE_URL).create(JsonPlaceHolderApi.class);
